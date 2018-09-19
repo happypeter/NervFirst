@@ -1,11 +1,39 @@
 import React, { Component } from 'react'
-import logo from './logo.svg'
 import './App.css'
 
 const nervos = require('./nervos')
 const simpleStore = require('./simpleStore')
 
 class App extends Component {
+  state = {
+    msg: ''
+  }
+  handleChange = e => {
+    this.setState({
+      msg: e.target.value
+    })
+  }
+  handleSubmit = async e => {
+    e.preventDefault()
+    const { msg } = this.state
+    const time = new Date()
+
+    const current = await nervos.appchain.getBlockNumber()
+    const tx = {
+      ...simpleStore.transaction,
+      validUntilBlock: +current + 88
+    }
+    const res = await simpleStore.simpleStoreContract.methods
+      .add(msg, +time)
+      .send(tx)
+
+    const receipt = await nervos.listeners.listenToTransactionReceipt(res.hash)
+    receipt.errorMessage && console.log(receipt.errorMessage)
+    this.setState({
+      msg: ''
+    })
+  }
+
   componentDidMount = async () => {
     const from =
       nervos.appchain.accounts.wallet[0] &&
@@ -28,13 +56,17 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            Name:
+            <input
+              type="text"
+              value={this.state.msg}
+              onChange={this.handleChange}
+            />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
       </div>
     )
   }
