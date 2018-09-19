@@ -21,6 +21,7 @@ class App extends Component {
     const current = await nervos.appchain.getBlockNumber()
     const tx = {
       ...simpleStore.transaction,
+      from: window.neuron.getAccount(),
       validUntilBlock: +current + 88
     }
     const res = await simpleStore.simpleStoreContract.methods
@@ -35,11 +36,7 @@ class App extends Component {
   }
 
   componentDidMount = async () => {
-    const from =
-      nervos.appchain.accounts.wallet[0] &&
-      nervos.appchain.accounts.wallet[0].address
-
-    console.log('from', from)
+    const from = window.neuron.getAccount()
 
     const times = await simpleStore.simpleStoreContract.methods.getList().call({
       from
@@ -58,7 +55,7 @@ class App extends Component {
       <div className="App">
         <form onSubmit={this.handleSubmit}>
           <label>
-            Name:
+            msg:
             <input
               type="text"
               value={this.state.msg}
