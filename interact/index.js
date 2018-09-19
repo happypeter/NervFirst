@@ -18,6 +18,8 @@ const time = new Date()
     nervos.appchain.accounts.wallet[0] &&
     nervos.appchain.accounts.wallet[0].address
 
+  console.log('from', from)
+
   const times = await simpleStore.simpleStoreContract.methods.getList().call({
     from
   })
